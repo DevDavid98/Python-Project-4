@@ -9,45 +9,50 @@ import re
 db = SqliteDatabase('inventory.db')
 
 
+from peewee import *
+import datetime
+import csv
+import sys
+import re
+
+
+#create database name and db
+db = SqliteDatabase('inventory.db')
+
+
 class Product(Model):
-    #product_names = CharField(unique = True)
+    product_names = CharField(unique = True)
     product_quantity = IntegerField(unique = True)
     class Meta():
         database = db
-
-
-#def view_all_inventory():
-#    all_products = inventory[3]
-#    try:
-#        product_records = Product.create(product_names = all_products)
-#        product_records.save()
-#    except IntegrityError:
-#        records = Product.get(product_names = all_products)
-        
-                
+                        
 def all_product_stock():
+    print('\nStock Quantity:')
     for the_stock in inventory[0:1]:
         for item in the_stock.values():
             for all_quantities in item:
-                product_stock = Product.create(product_quantity = all_quantities)
-                product_stock.save()
+                try:
+                    product_stock = Product.create(product_quantity = all_quantities)
+                    product_stock.save()
+                except :
+                    records = Product.get(product_quantity = all_quantities)
+                #print('Stock Quantity:')
+                print(all_quantities)
 
-def all_product_prices():
-    pass
-def all_product_dates():
-    pass
-def all_product_ids():
-    pass
-def delete_products():
-    pass
-def add_products():
-    print('Hello, what item would you like to add?')
-    #add name
-    #how many
-    #create date added
-
-
-
+                
+def all_product_names():
+    print('Available Stock Items:\n')
+    for item_name in inventory[3].values():
+        for items in item_name:
+            try:
+                item_names = Product.create(product_names = items)
+                item_names.save()
+            except IntegrityError:
+                item_records = Product.get(product_names = items)
+            
+            print(items)
+         
+            
 #creates main menu
 def main_menu():
     print('-' * 44)
@@ -55,7 +60,7 @@ def main_menu():
     print('Please select a menu option to begin')
     print('-' * 44)
     print('''
-    Select "V" to view all inventory
+    Select "V" to view all stock
     Select "E" to edit inventory
     Select "S" to search inventory
     Select "Q" to quit the application
@@ -65,7 +70,7 @@ def main_menu():
         user_option = input('Menu Select: ')
         
         if user_option.lower() == 'v':
-            pass
+            all_product_stock()
         elif user_option.lower() == 'e':
             pass
         elif user_option.lower() == 's':
@@ -112,7 +117,12 @@ with open('inventory.csv', 'r') as csv_file:
         {'all_products': all_inventory}
     ]
     
-           
+#old code dont use only for reference   
+
+#print(inventory[3])
+#for name in inventory[3].values():
+    #for thing in name:
+        #print(thing)
 #def clean_data():
 #    for dict in inventory:
 #        for value in dict.values():
@@ -120,13 +130,6 @@ with open('inventory.csv', 'r') as csv_file:
 #            for item in value:
 #                print(item)
 #clean_data()
-
-
-
-
-
-
-
 
 
 #for price in product_price:
@@ -150,4 +153,6 @@ if __name__ == '__main__':
     db.connect()
     db.create_tables([Product], safe = True)
     #view_all_inventory()
+    #main_menu()
     all_product_stock()
+    all_product_names()
