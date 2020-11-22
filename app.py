@@ -31,25 +31,23 @@ with open('inventory.csv', 'r') as csv_file:
         dates_added.append(added_dates)
         
 
+inventory = {
+    'items': food_names,
+    'price': food_price,
+    'stock': food_stock,
+    'dates': dates_added
+}
 
-inventory = [
-    {'items': food_names},
-    {'price': food_price},
-    {'stock': food_stock},
-    {'dates': dates_added}
-]
 
+def add_products():
+    try:
+        food_item = Product.create(product_names = inventory['items'])
+        food_item.save()
+    except IntegrityError:
+        food_product = Product.get(product_names = inventory['items'])
+        
 
-def add_foods():
-    for key in inventory:
-        try:
-            Product.create(product_quantity = key['stock'], product_prices = key['price'], product_names = key['items'])
-        except IntegrityError:
-            added_inventory = Product.get(product_quantity = key['stock'], product_prices = key['price'], product_names = key['items'])
-            added_invewntory.save()
-            
-    
 if __name__ == '__main__':
     db.connect()
     db.create_tables([Product], safe = True)
-    add_foods()
+    add_products()
