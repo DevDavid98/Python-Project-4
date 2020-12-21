@@ -6,9 +6,9 @@ import re
 
 db = SqliteDatabase('inventory.db')
 class Product(Model):
-    product_quantity = IntegerField()
-    product_prices = IntegerField()
-    product_names = CharField()
+    product_quantity = IntegerField(unique = True)
+    product_prices = IntegerField(unique = True)
+    product_names = CharField(unique = True)
     class Meta():
         database = db
         
@@ -20,12 +20,13 @@ def add_inventory():
             foods = item[0]
             food_cost = int(re.sub('[^0-9]','',item[1]))
             item_stock = int(item[2])
-            added_dates = item[3]
-
-            add_data = Product.create(product_quantity = item_stock, product_prices = food_cost, product_names = foods)
-            add_data.save()
-            #food_data = Product.get(product_quantity = item_stock, product_prices = food_cost, product_names = foods)
-                
+            added_dates = item[3]     
+            try:
+                inventory = Product.create(product_quantity = item_stock, product_prices = food_cost, product_names = foods)
+                inventory.save()
+            except IntegrityError:
+                inventory_check = Product.get(product_quantity = item_stock, product_prices = food_cost, product_names = foods)
+                   
 
 if __name__ == '__main__':
     db.connect()
