@@ -12,6 +12,7 @@ class Product(Model):
     class Meta():
         database = db
         
+
 def add_inventory():
     with open('inventory.csv', 'r') as csv_file:
         file_reader = csv.reader(csv_file)
@@ -23,10 +24,12 @@ def add_inventory():
             added_dates = item[3]     
             try:
                 inventory = Product.create(product_quantity = item_stock, product_prices = food_cost, product_names = foods)
+            # try to create the Product
+            except IntegrityError: # if it fails do nothing
+                pass
+            else: #if it doesn't fail, save it
                 inventory.save()
-            except IntegrityError:
-                inventory_check = Product.get(product_quantity = item_stock, product_prices = food_cost, product_names = foods)
-                   
+
 
 if __name__ == '__main__':
     db.connect()
