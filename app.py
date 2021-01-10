@@ -23,14 +23,6 @@ def all_inventory():
             food_cost = int(re.sub('[^0-9]','',item[1]))
             item_stock = int(item[2])
             added_dates = item[3]
-            print('Item:')
-            print(foods)
-            print('Item Stock:')
-            print(item_stock)
-            print('Item Cost:')
-            print(food_cost)
-            print('Date Added:')
-            print(added_dates)
             try:
                 inventory = Product.create(product_names = foods, product_quantity = item_stock, product_prices = food_cost, product_dates = added_dates)
             # try to create the Product
@@ -38,9 +30,46 @@ def all_inventory():
                 pass
             else: #if it doesn't fail, save it
                 inventory.save()
-def view_all():
-    all_inventory()
                 
+
+def view_all():
+    print('\n')
+    
+    while True:
+
+        print('*' * 25, 'Inventory sub-menu', '*' * 25) 
+        user_input = input('''
+            Enter "A" to view all current inventory products
+            Enter "S" to view all current stock available
+            Enter "P"  to view all current inventory prices
+            Enter "Q" to exit Inventory sub-menu:
+            ''')
+
+        if user_input.lower() == 'a':
+            for item in Product.select():
+                print('Date added:', '\t', 'Product name:')
+                print(item.product_dates, '\t', item.product_names)
+                
+        elif user_input.lower() == 's':
+            for item in Product.select():
+                print('Available Stock:', '\t\t', 'Product names:')
+                print(item.product_quantity, '\t\t\t\t', item.product_names)
+                
+        elif user_input.lower() == 'p':
+            for item in Product.select():
+                print('Current price:', '\t\t', 'Product names:')
+                print(item.product_prices, '\t\t\t', item.product_names)
+                
+        elif user_input.lower() == 'q':
+            print('\n')
+            break
+        else:
+            print('Please enter a valid option')
+                    
+def search_inventory():
+    pass
+def edit_inventory():
+    pass
 def menu_interface():
     while True:
         print('*' * 25, 'Store Inventory', '*' * 25)
@@ -52,6 +81,7 @@ def menu_interface():
               Press "Q" to exit application.
               ''')
         user_input = input('Menu Select: ')
+        
         if user_input.lower() == 'v':
             view_all()
         elif user_input.lower() == 's':
@@ -60,7 +90,6 @@ def menu_interface():
             pass
         elif user_input.lower() == 'q':
             sys.exit('\nExiting application...\n')
-    
 
         
 if __name__ == '__main__':
