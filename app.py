@@ -37,7 +37,7 @@ def view_all():
     
     while True:
 
-        print('*' * 25, 'Inventory sub-menu', '*' * 25) 
+        print('*' * 25, '(INVENTORY MENU)', '*' * 25) 
         user_input = input('''
             Enter "A" to view all current inventory products
             Enter "S" to view all current stock available
@@ -65,14 +65,31 @@ def view_all():
             break
         else:
             print('Please enter a valid option')
-                    
+            
+            
+            
 def search_inventory():
-    pass
+    print('\n')
+    while True:
+        print('*' * 25, '(SEARCH MENU)', '*' * 25)
+        print('''
+            Search anything within the store.
+            
+                          OR
+                        
+            Press "E" to exit search menu.
+        ''')
+        item_search = input('Search item(s): ')
+        if item_search.lower() == 'e':
+            print('\nLeaving search menu...\n\n')
+            break
+    
+
 def edit_inventory():
     pass
 def menu_interface():
     while True:
-        print('*' * 25, 'Store Inventory', '*' * 25)
+        print('*' * 25, '(STORE MENU)', '*' * 25)
         print('Please select an option below:')
         print('''
               Press "V" to view all store inventory.
@@ -85,7 +102,7 @@ def menu_interface():
         if user_input.lower() == 'v':
             view_all()
         elif user_input.lower() == 's':
-            pass
+            search_inventory()
         elif user_input.lower() == 'e':
             pass
         elif user_input.lower() == 'q':
