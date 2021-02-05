@@ -32,43 +32,43 @@ def all_inventory():
                 inventory.save()
                 
 
-def view_all():
+def view_inventory():
     print('\n')
     
     while True:
 
         print('*' * 25, '(INVENTORY MENU)', '*' * 25) 
-        user_input = input('''
+        print('''
             Enter "A" to view all current inventory products
             Enter "S" to view all current stock available
             Enter "P"  to view all current inventory prices
-            Enter "Q" to exit Inventory sub-menu:
+            Enter "0" to exit inventory menu:
             ''')
-
-        if user_input.lower() == 'a':
+        inventory_commands = input('Enter command: ')
+        if inventory_commands.lower() == 'a':
             for item in Product.select():
                 print('Date added:', '\t', 'Product name:')
                 print(item.product_dates, '\t', item.product_names)
                 
-        elif user_input.lower() == 's':
+        elif inventory_commands.lower() == 's':
             for item in Product.select():
                 print('Available Stock:', '\t\t', 'Product names:')
                 print(item.product_quantity, '\t\t\t\t', item.product_names)
                 
-        elif user_input.lower() == 'p':
+        elif inventory_commands.lower() == 'p':
             for item in Product.select():
                 print('Current price:', '\t\t', 'Product names:')
                 print(item.product_prices, '\t\t\t', item.product_names)
                 
-        elif user_input.lower() == 'q':
-            print('\n')
+        elif inventory_commands.lower() == '0':
+            print('\nLeaving inventory menu...\n')
             break
         else:
-            print('Please enter a valid option')
+            print('Please enter a valid command')
             
             
             
-def search_inventory():
+def search_inventory(search_query = None):
     print('\n')
     while True:
         print('*' * 25, '(SEARCH MENU)', '*' * 25)
@@ -77,16 +77,54 @@ def search_inventory():
             
                           OR
                         
-            Press "E" to exit search menu.
+            Press "0" to exit search menu.
         ''')
+        items = Product.select().order_by(Product.timestamp.decs())
+        if search_query:
+            items = items.where(Product.content.contains(search_query
         item_search = input('Search item(s): ')
-        if item_search.lower() == 'e':
+        
+        if item_search == '0':
             print('\nLeaving search menu...\n\n')
             break
     
 
 def edit_inventory():
-    pass
+    print('\n')
+    while True:
+        print('*' * 25, '(EDIT MENU)', '*' * 25)
+        print('''
+            Press "A" to add a product.
+            Press "E" to edit a product.
+            Press "D" to delete a product.
+            
+                        OR
+            Press "0" to exit edit menu
+        ''')
+        
+        edit_controls = input('Enter command: ')
+        
+        if edit_controls.lower() == 'a':
+            #print('enter your entry. press CTRL+D when finished')
+            #data = sys.stdin.read().strip()
+            #if data:
+                #if input('\nSave entry? [Yn] ').lower() != 'n':
+                #Entry.create(content = data)
+                #print('Saved successfully')
+                pass
+        elif edit_controls.lower() == 'e':
+            pass
+        elif edit_controls.lower() == 'd':
+            pass
+        elif edit_controls == '0':
+            print('\nLeaving control menu...\n\n')
+            break
+        else:
+            print('\nPlease enter a valid command\n')
+        
+            
+
+
 def menu_interface():
     while True:
         print('*' * 25, '(STORE MENU)', '*' * 25)
@@ -100,13 +138,15 @@ def menu_interface():
         user_input = input('Menu Select: ')
         
         if user_input.lower() == 'v':
-            view_all()
+            view_inventory()
         elif user_input.lower() == 's':
             search_inventory()
         elif user_input.lower() == 'e':
-            pass
+            edit_inventory()
         elif user_input.lower() == 'q':
             sys.exit('\nExiting application...\n')
+        else:
+            print('\nPlease enter a valid command!\n')
 
         
 if __name__ == '__main__':
