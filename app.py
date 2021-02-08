@@ -79,9 +79,9 @@ def search_inventory(search_query = None):
                         
             Press "0" to exit search menu.
         ''')
-        items = Product.select().order_by(Product.timestamp.decs())
-        if search_query:
-            items = items.where(Product.content.contains(search_query
+        #items = Product.select().order_by(Product.timestamp.decs())
+        #if search_query:
+            #items = items.where(Product.content.contains(search_query
         item_search = input('Search item(s): ')
         
         if item_search == '0':
