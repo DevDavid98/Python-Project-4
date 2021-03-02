@@ -1,39 +1,6 @@
-from peewee import *
-import datetime
-import csv
-import sys
-import re
-
-db = SqliteDatabase('inventory.db')
-class Product(Model):
-    product_names = CharField(unique = True)
-    product_quantity = IntegerField(unique = True)
-    product_prices = IntegerField(unique = True)
-    product_dates = DateField(unique = True)
-    class Meta():
-        database = db
-        
-
-def all_inventory():
-    with open('inventory.csv', 'r') as csv_file:
-        file_reader = csv.reader(csv_file)
-        next(file_reader)
-        for item in file_reader:
-            foods = item[0]
-            food_cost = int(re.sub('[^0-9]','',item[1]))
-            item_stock = int(item[2])
-            added_dates = item[3]
-            try:
-                inventory = Product.create(product_names = foods, product_quantity = item_stock, product_prices = food_cost, product_dates = added_dates)
-            # try to create the Product
-            except IntegrityError: # if it fails do nothing
-                pass
-            else: #if it doesn't fail, save it
-                inventory.save()
-                
-
+#this menu lets the user see what is in the current inventory until it is updated via database 
 def view_inventory():
-    print('\n')
+    clear()
     
     while True:
 
@@ -67,9 +34,9 @@ def view_inventory():
             print('Please enter a valid command')
             
             
-            
+#*****not finished*****            
 def search_inventory(search_query = None):
-    print('\n')
+    clear()
     while True:
         print('*' * 25, '(SEARCH MENU)', '*' * 25)
         print('''
@@ -79,18 +46,16 @@ def search_inventory(search_query = None):
                         
             Press "0" to exit search menu.
         ''')
-        #items = Product.select().order_by(Product.timestamp.decs())
-        #if search_query:
-            #items = items.where(Product.content.contains(search_query
-        item_search = input('Search item(s): ')
+        item_lookup = input('Search items: ')
+        items = Product.select()
+        if search_query:
+            items = items.where(Product.product_names.contains(search_query))
+        for item in items:
+            print(item.product_names)
         
-        if item_search == '0':
-            print('\nLeaving search menu...\n\n')
-            break
-    
-
+#*****not finished*****
 def edit_inventory():
-    print('\n')
+    clear()
     while True:
         print('*' * 25, '(EDIT MENU)', '*' * 25)
         print('''
@@ -117,14 +82,14 @@ def edit_inventory():
         elif edit_controls.lower() == 'd':
             pass
         elif edit_controls == '0':
-            print('\nLeaving control menu...\n\n')
+            print('\nLeaving edit menu...\n\n')
             break
         else:
             print('\nPlease enter a valid command\n')
         
             
 
-
+#creates the first menu the user sees and links the other menus and loops over them
 def menu_interface():
     while True:
         print('*' * 25, '(STORE MENU)', '*' * 25)
@@ -148,8 +113,9 @@ def menu_interface():
         else:
             print('\nPlease enter a valid command!\n')
 
-        
+#makes sure file is not ran automatically        
 if __name__ == '__main__':
+    #connects the database and creates the tables and runs the main fuctions 
     db.connect()
     db.create_tables([Product], safe = True)
     menu_interface()
