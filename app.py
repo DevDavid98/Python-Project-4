@@ -44,3 +44,4 @@ if __name__ == '__main__':
     db.create_tables([Product], safe = True)
     csv_extractor()
     #id_viewer()
+#new version of app.py
