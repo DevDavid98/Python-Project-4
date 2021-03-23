@@ -1,121 +1,46 @@
-#this menu lets the user see what is in the current inventory until it is updated via database 
-def view_inventory():
-    clear()
-    
-    while True:
+from peewee import *
+import datetime
+import csv
+import sys
+import re
+import os
 
-        print('*' * 25, '(INVENTORY MENU)', '*' * 25) 
-        print('''
-            Enter "A" to view all current inventory products
-            Enter "S" to view all current stock available
-            Enter "P"  to view all current inventory prices
-            Enter "0" to exit inventory menu:
-            ''')
-        inventory_commands = input('Enter command: ')
-        if inventory_commands.lower() == 'a':
-            for item in Product.select():
-                print('Date added:', '\t', 'Product name:')
-                print(item.product_dates, '\t', item.product_names)
-                
-        elif inventory_commands.lower() == 's':
-            for item in Product.select():
-                print('Available Stock:', '\t\t', 'Product names:')
-                print(item.product_quantity, '\t\t\t\t', item.product_names)
-                
-        elif inventory_commands.lower() == 'p':
-            for item in Product.select():
-                print('Current price:', '\t\t', 'Product names:')
-                print(item.product_prices, '\t\t\t', item.product_names)
-                
-        elif inventory_commands.lower() == '0':
-            print('\nLeaving inventory menu...\n')
-            break
-        else:
-            print('Please enter a valid command')
-            
-            
-#*****not finished*****            
-def search_inventory(search_query = None):
-    clear()
-    while True:
-        print('*' * 25, '(SEARCH MENU)', '*' * 25)
-        print('''
-            Search anything within the store.
-            
-                          OR
-                        
-            Press "0" to exit search menu.
-        ''')
-        item_lookup = input('Search items: ')
-        items = Product.select()
-        if search_query:
-            items = items.where(Product.product_names.contains(search_query))
-        for item in items:
-            print(item.product_names)
+
+db = SqliteDatabase('inventory.db')
+class Product(Model):
+    product_id = IntegerField(primary_key = True)
+    product_quantity = IntegerField(unique = True)
+    product_price = IntegerField(unique = True)
+    date_updated = DateField(unique = True)
+    product_names = CharField(unique = True)
+    class Meta:
+        database = db
         
-#*****not finished*****
-def edit_inventory():
-    clear()
-    while True:
-        print('*' * 25, '(EDIT MENU)', '*' * 25)
-        print('''
-            Press "A" to add a product.
-            Press "E" to edit a product.
-            Press "D" to delete a product.
+def csv_extractor():
+    with open('inventory.csv', 'r') as csv_file:
+        file_reader = csv.reader(csv_file)
+        next(file_reader)
+        for item in file_reader:
+            foods = item[0]
+            food_cost = int(re.sub('[^0-9]','',item[1]))
+            item_stock = int(item[2])
+            added_dates = item[3]
             
-                        OR
-            Press "0" to exit edit menu
-        ''')
-        
-        edit_controls = input('Enter command: ')
-        
-        if edit_controls.lower() == 'a':
-            #print('enter your entry. press CTRL+D when finished')
-            #data = sys.stdin.read().strip()
-            #if data:
-                #if input('\nSave entry? [Yn] ').lower() != 'n':
-                #Entry.create(content = data)
-                #print('Saved successfully')
+            #adds information from the csv into the attributes needed in the database and handles errors
+            try:
+                inventory = Product.create(product_id, product_names = foods, product_quantity = item_stock, product_price = food_cost, date_updated = added_dates)
+            # try to create the Product
+            except IntegrityError: # if it fails do nothing
                 pass
-        elif edit_controls.lower() == 'e':
-            pass
-        elif edit_controls.lower() == 'd':
-            pass
-        elif edit_controls == '0':
-            print('\nLeaving edit menu...\n\n')
-            break
-        else:
-            print('\nPlease enter a valid command\n')
-        
-            
+            else: #if it doesn't fail, save it
+                inventory.save()
+#def id_viewer():
+    #for item in Product.select():
+        #print(item.product_id,'\n')
+        #print(item.product_price)
 
-#creates the first menu the user sees and links the other menus and loops over them
-def menu_interface():
-    while True:
-        print('*' * 25, '(STORE MENU)', '*' * 25)
-        print('Please select an option below:')
-        print('''
-              Press "V" to view all store inventory.
-              Press "S" to search for products.
-              Press "E" to edit store inventory.
-              Press "Q" to exit application.
-              ''')
-        user_input = input('Menu Select: ')
-        
-        if user_input.lower() == 'v':
-            view_inventory()
-        elif user_input.lower() == 's':
-            search_inventory()
-        elif user_input.lower() == 'e':
-            edit_inventory()
-        elif user_input.lower() == 'q':
-            sys.exit('\nExiting application...\n')
-        else:
-            print('\nPlease enter a valid command!\n')
-
-#makes sure file is not ran automatically        
 if __name__ == '__main__':
-    #connects the database and creates the tables and runs the main fuctions 
     db.connect()
     db.create_tables([Product], safe = True)
-    menu_interface()
+    csv_extractor()
+    #id_viewer()
