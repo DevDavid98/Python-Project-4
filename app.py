@@ -10,6 +10,7 @@ def clear():
 
 db = SqliteDatabase('inventory.db')
 class Product(Model):
+    #product_id = IntegerField(unique = True, primary_key = True)
     product_quantity = IntegerField(unique = True)
     product_price = IntegerField(unique = True)
     date_updated = DateField(unique = True)
@@ -44,7 +45,7 @@ def main_menu():
         print('*' * 25,'Store Inventory', '*' * 25)
         while True:
             print('''Main Menu:
-                Press "V" to view product IDs.
+                Press "V" to view product information.
                 Press "A" to add a new product to the database.
                 Press "B" to backup the database to a CSV file.
                 Press "0" to quit the application.''')
@@ -52,7 +53,7 @@ def main_menu():
             option_select = input('\nPlease select an option obove: ')
             if option_select.lower() == 'v':
                 clear()
-                item_search()
+                item_search_menu()
             elif option_select.lower() == 'a':
                 clear()
             elif option_select.lower() == 'b':
@@ -63,17 +64,65 @@ def main_menu():
             else:
                 print('Please select a valid option!')
 
-def search_menu(search_query = None):
+def search(search_query = None):
     all_items = Product.select()
     print('*' * 25,'Item Searched','*' * 25)
     if search_query:
         all_items = all_items.where(Product.product_names.contains(search_query))
-        for item in all_items:
-            print('Product name: ', item.product_names, '-', 'Product ID: ', item.id)
 
-def item_search():
-    search_menu(input('Search by item name or product ID: '))    
+        for item in all_items:
+            print('Product name: ', item.product_names)
+        print('\n')
+        
+        
+
+
+
+def item_search_menu():
+    while True:
+        print('*' * 25, 'SEARCH INVENTORY', '*' * 25)
+        print('''
+            To search by name press "0".
+            To search by ID number press "1".
+            To look at all current products type in "ALL".
+            To exit search menu press "Q" to quit.
+        ''')
+        user_input = input('Option Select: ')
+        if user_input.lower() == '0':
+            clear()
+            search(input('Search by item name: '))
+        elif user_input.lower() == '1':
+            clear()
+            id_search()
+        elif user_input.lower() == 'all':
+            clear()
+            for item in Product.select():
+                print('Product ID: ', item.id, '\t\t', 'Item name: ',item.product_names)
+                
+        elif user_input.lower() == 'q':
+            clear()
+            break
+        else:
+            clear()
+            print('Please enter a valid option!\n')
+                
+def id_finder(search_query):
+    #I need help I cant figure out the logic to search for the product ID
+    #I can search the items by name and i can get the item ID but i cant search it.
+    #I also can not implement this code below without crashing the whole program what data do i pair it with(located in the Product Model)?
+    #product_id = IntegerField(unique = True, primary_key = True)
+    #I noticed it already creates the product_ids without the line above but the project wants me to use it.
+    #could you please give me a video or examples because I learn through example and implementing it in my own way and style!
+    pass
     
+    
+    
+def id_search():
+    id_finder(input('Search item ID: '))
+        
+        
+
+        
 if __name__ == '__main__':
     db.connect()
     db.create_tables([Product], safe = True)
