@@ -10,11 +10,11 @@ def clear():
 
 db = SqliteDatabase('inventory.db')
 class Product(Model):
-    #product_id = IntegerField(unique = True, primary_key = True)
+    #product_id = AutoField()
     product_quantity = IntegerField(unique = True)
-    product_price = IntegerField(unique = True)
-    date_updated = DateField(unique = True)
-    product_names = CharField(unique = True)
+    product_price = IntegerField()
+    date_updated = DateField()
+    product_name = CharField(unique = True)
     class Meta:
         database = db
         
@@ -30,7 +30,7 @@ def csv_extractor():
             
             #adds information from the csv into the attributes needed in the database and handles errors
             try:
-                inventory = Product.create(product_names = foods, product_quantity = item_stock, product_price = food_cost, date_updated = added_dates)
+                inventory = Product.create(product_name = foods, product_quantity = item_stock, product_price = food_cost, date_updated = added_dates)
             # try to create the Product
             except IntegrityError: # if it fails do nothing
                 pass
@@ -38,8 +38,14 @@ def csv_extractor():
                 inventory.save()
 
 def main_menu():
-    print('Welcome to the store inventory')
-    program_start = input('To start the program click "S" to start: ')
+    while True:
+        print('Welcome to the store inventory')
+        program_start = input('To start the program click "S" to start: ')
+        if program_start.lower() == 's':
+            break
+        else:
+            clear()
+            print('*'* 25, 'Please enter a valid option!', '*' *25, '\n')
     if program_start.lower() == 's':
         clear()
         print('*' * 25,'Store Inventory', '*' * 25)
@@ -50,12 +56,13 @@ def main_menu():
                 Press "B" to backup the database to a CSV file.
                 Press "0" to quit the application.''')
                 
-            option_select = input('\nPlease select an option obove: ')
+            option_select = input('\nPlease select an option above: ')
             if option_select.lower() == 'v':
                 clear()
                 item_search_menu()
             elif option_select.lower() == 'a':
                 clear()
+                add_product_menu()
             elif option_select.lower() == 'b':
                 clear()
             elif option_select.lower() == '0':
@@ -68,10 +75,10 @@ def search(search_query = None):
     all_items = Product.select()
     print('*' * 25,'Item Searched','*' * 25)
     if search_query:
-        all_items = all_items.where(Product.product_names.contains(search_query))
+        all_items = all_items.where(Product.product_name.contains(search_query))
 
         for item in all_items:
-            print('Product name: ', item.product_names)
+            print('Product name: ', item.product_name)
         print('\n')
         
         
@@ -84,7 +91,7 @@ def item_search_menu():
         print('''
             To search by name press "0".
             To search by ID number press "1".
-            To look at all current products type in "ALL".
+            To look at all current products type "ALL".
             To exit search menu press "Q" to quit.
         ''')
         user_input = input('Option Select: ')
@@ -97,7 +104,7 @@ def item_search_menu():
         elif user_input.lower() == 'all':
             clear()
             for item in Product.select():
-                print('Product ID: ', item.id, '\t\t', 'Item name: ',item.product_names)
+                print('Product ID: ', item.id, '\t\t', 'Item name: ',item.product_name)
                 
         elif user_input.lower() == 'q':
             clear()
@@ -106,22 +113,41 @@ def item_search_menu():
             clear()
             print('Please enter a valid option!\n')
                 
-def id_finder(search_query):
-    #I need help I cant figure out the logic to search for the product ID
-    #I can search the items by name and i can get the item ID but i cant search it.
-    #I also can not implement this code below without crashing the whole program what data do i pair it with(located in the Product Model)?
-    #product_id = IntegerField(unique = True, primary_key = True)
-    #I noticed it already creates the product_ids without the line above but the project wants me to use it.
-    #could you please give me a video or examples because I learn through example and implementing it in my own way and style!
-    pass
-    
-    
-    
+def id_finder(search_query = None):
+    item_id = Product.select()
+    for item in item_id:
+        if item.id == search_query:
+            print('*' * 25, 'ID searched', '*' * 25)
+            print('Product ID:', item.id, '\t', 'Product Name:', item.product_name)
+            
 def id_search():
-    id_finder(input('Search item ID: '))
+    try:
+        id_finder(int(input('Please enter any ID number or 0 to exit: ')))
+    except ValueError:
+        pass
         
-        
-
+def add_product_menu():
+    while True:
+        clear()
+        print('*' * 25, 'New Product Menu', '*' * 25)
+        print('''
+                To add a new product press 0
+                To delete recently created product press 1
+                To quit press "Q" to leave
+        ''')
+        user_input = input('Please enter a valid option: ')
+        if user_input == '0':
+            add_product()
+        elif user_input == '1':
+            delete_product()
+        elif user_input.lower() == 'q':
+            clear()
+            break
+    
+def add_product():
+    pass
+def delete_product():
+    pass
         
 if __name__ == '__main__':
     db.connect()
