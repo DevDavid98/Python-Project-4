@@ -5,6 +5,24 @@ import sys
 import re
 import os
 
+#to-do list
+
+#(TOP PRIORITY)
+#figure out how to save and update existing items with new data
+#how to delete items within DB
+
+#(functionality)
+#show stock of items
+#show dates of items
+#show price of items
+
+#(finishing touches)
+#backup whole database to a csv file
+#documentation of code via doctext
+#find errors
+#clean code
+#turn in for grade
+
 def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -81,9 +99,6 @@ def search(search_query = None):
             print('Product name: ', item.product_name)
         print('\n')
         
-        
-
-
 
 def item_search_menu():
     while True:
@@ -127,8 +142,8 @@ def id_search():
         pass
         
 def add_product_menu():
-    while True:
-        clear()
+     while True:
+        #clear()
         print('*' * 25, 'New Product Menu', '*' * 25)
         print('''
                 To add a new product press 0
@@ -137,18 +152,42 @@ def add_product_menu():
         ''')
         user_input = input('Please enter a valid option: ')
         if user_input == '0':
+            clear()
             add_product()
         elif user_input == '1':
+            clear()
             delete_product()
         elif user_input.lower() == 'q':
             clear()
             break
     
 def add_product():
+    clear()
+    while True:
+        print('*' * 25,'New Product Menu','*' * 25)
+        item_name = input('Enter item name: ')
+        while True:
+            try:
+                item_stock = int(input('Enter the STOCK in whole numbers only: '))
+                item_price = int(input('Enter the PRICE in whole numbers only: '))
+                break
+            except ValueError:
+                print('!!!Please enter a whole number only!!!')
+        date_stamp = ('{:%m/%d/%Y}'.format(datetime.datetime.now()))
+        try:
+            item_added = Product.create(product_name = item_name, product_quantity = item_stock, product_price = item_price, date_updated = date_stamp)
+            item_added.save()
+            
+        except IntegrityError: # if it fails do nothing
+            pass
+        clear()
+        print('!!!PRODUCT CREATED!!!')
+        break
+          
+
+def db_backup():
     pass
-def delete_product():
-    pass
-        
+    
 if __name__ == '__main__':
     db.connect()
     db.create_tables([Product], safe = True)
