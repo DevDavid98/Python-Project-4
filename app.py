@@ -22,7 +22,7 @@ import os
 #documentation of code via doctext
 #find errors
 #clean code
-#turn in for grade
+
 
 def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
