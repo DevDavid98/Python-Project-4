@@ -10,6 +10,7 @@ import os
 #(TOP PRIORITY)
 #figure out how to save and update existing items with new data
 #how to delete items within DB
+#figure out product_id
 
 #(functionality)
 #show stock of items
@@ -184,7 +185,11 @@ def add_product():
         print('!!!PRODUCT CREATED!!!')
         break
           
-
+def delete_product():
+    Product.delete().where(Product.product_name()).execute()
+    
+    
+    
 def db_backup():
     pass
     
