@@ -231,7 +231,7 @@ def add_product_menu():
         print('*' * 25, 'New Product Menu', '*' * 25)
         print('''
             To add a new product press 0
-            To update amy product press 1
+            To update any product press 1
             To delete recently created product press 2
             To quit press "Q" to leave  
         ''')
