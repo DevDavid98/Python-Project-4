@@ -1,2 +1,1 @@
-Working with Peewee ORM Sqlite3 and Python databases. As I go through my code with the project i find it fasinating that my code can be so modular..
-At this point in time i am almost done with this project and I need to finish the rest
+Using knowledge of CSV and File I/O and database ORMs to build a console application that allows you to easily interact with data for a store's inventory. The data needs to be cleaned from the CSV before it is added to the database.
