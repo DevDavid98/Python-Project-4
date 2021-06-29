@@ -231,7 +231,8 @@ def add_product_menu():
         print('*' * 25, 'New Product Menu', '*' * 25)
         print('''
             To add a new product press 0
-            To delete recently created product press 1
+            To update amy product press 1
+            To delete recently created product press 2
             To quit press "Q" to leave  
         ''')
 
@@ -240,8 +241,12 @@ def add_product_menu():
         if user_input == '0':
             clear()
             add_product()
-
+    
         elif user_input == '1':
+            clear()
+            update_inventory()
+
+        elif user_input == '2':
             clear()
             delete_product()
 
@@ -264,29 +269,32 @@ def add_product():
             print(item.product_name)
 
         item_name = input('\nEnter new product name: ')
+        print('Product Created...\n')
 
         while True:
             try:
                 item_stock = int(input(
                         'Enter product stock: '
                     ))
-                item_price = input(
-                        'Enter product price: '
-                    )
-                break
 
             except ValueError:
                 print('!!!Please enter a whole number only!!!')
 
+            break
+            
+        item_price = input(
+            'Enter product price: '
+            )
+        price_converter = int(re.sub('[^0-9]', '', item_price))
+
         date_stamp = ('{:%m/%d/%Y}'.format(datetime.datetime.now()))
 
-        clear()
         try:
             item_added = Product.create(
-                product_name=item_name,
-                product_quantity=item_stock,
-                product_price=item_price,
-                date_updated=date_stamp
+            product_name=item_name,
+            product_quantity=item_stock,
+            product_price=price_converter,
+            date_updated=date_stamp
             )
 
             item_added.save()
@@ -294,9 +302,8 @@ def add_product():
 
         except IntegrityError:  # if it fails do nothing
             pass
-        clear()
+        
         break
-
 
 def delete_product():
 
@@ -305,29 +312,40 @@ def delete_product():
     print('*' * 25, 'Delete product Menu', '*' * 25)
 
     while True:
+        all_inventory = Product.select()
         print('''
-            To delete by product name press 'P'.
             To delete by product ID press 'I'.
             To exit press 'E'.
         ''')
 
         menu_select = input('Enter valid option: ')
+        print('\n')
 
-        if menu_select.lower() == 'p':
-            deleted_item = input(
-                'To delete an item please type the name of the product: '
-            )
-            Product.delete().where(
-                Product.product_name == deleted_item).execute()
+        if menu_select.lower() == 'i':
 
-        elif menu_select.lower() == 'i':
-            deleted_id = input(
-                'To delete an item please type the product ID number: '
-            )
-            Product.delete().where(Product.id == deleted_id).execute()
+            print('ALL CURRENT INVENTORY:')
+
+            for product in all_inventory:
+                print('ID:',product.id, 'Product Name:', product.product_name)
+
+            while True:
+                try:
+                    deleted_id = int(input(
+                        'To delete an item(s) please type the product ID number or 0 to cancel: '
+                    ))
+                    Product.delete().where(Product.id == deleted_id).execute()
+                    print('Product Deleted...')
+                    if deleted_id == 0:
+                        
+                        break
+                except ValueError:
+                    print('Please enter a product ID.')
 
         elif menu_select.lower() == 'e':
             break
+        
+        else:
+            print('Please enter a valid option!')
 
 
 def db_backup():
@@ -339,20 +357,66 @@ def db_backup():
         product_writer = csv.writer(inventory_table,
                                     delimiter=',',
                                     quotechar='"',
-                                    quoting=csv.QUOTE_MINIMAL
+                                    quoting=csv.QUOTE_MINIMAL,
                                    )
 
         product_table = Product.select()
-
+        header = ['Product ID', 'Product Name', 'Product Quantity', 'Product Price', 'Date Updated']
+        product_writer.writerow(header)
         for item in product_table:
             product_writer.writerow([item.id,item.product_name,
                                      item.product_quantity,
                                      item.product_price,
                                      item.date_updated]
                                    )
+    while True:
+        user_backup = input('Would you like to view the recently saved database Y/N?: ')
+        
+        if user_backup.lower() == 'y':
+            with open('Inventory Backup.csv', 'r') as csv_file:
+                file_reader = csv.reader(csv_file)
+                for item in file_reader:
+                    print(item)
+            break
 
-def update_invnetory():
+        elif user_backup.lower() == 'n':
+            print('Returning to main menu...')
+            break
+
+        else:
+            print('Please enter a valid option')
+        
+
+def update_inventory():
     pass
+    #current_inventory = Product.select()
+    #while True:
+        #for item in current_inventory:
+            #print(
+                    #'Product ID:\n', 
+                    #item.id,
+                    #'\nProduct Name:\n',
+                    #item.product_name,
+                    #'\nProduct Stock:\n',
+                    #item.product_quantity,
+                    #'\nProduct Price:\n',
+                    #item.product_price,
+                    #'\nLast Updated:\n',
+                    #item.date_updated
+                #)
+        #try:
+            #where_update = str(input('Please type the item you would like to update: '))
+            #update_stock = int(input('Please enter the desired quantity: '))
+            #update_price = input('Please enter the desired price: ')
+            #price_converter = int(re.sub('[^0-9]', '', update_price))
+            #update_date = ('{:%m/%d/%Y}'.format(datetime.datetime.now()))
+
+        #except ValueError:
+            #print('Please enter a valid valid value')
+
+        #updated = (Product
+         #.update({Product.product_quantity==update_stock})
+         #.where(Product.product_name == 'where_update'))
 
 
 if __name__ == '__main__':
