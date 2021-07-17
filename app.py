@@ -253,8 +253,8 @@ def add_product_menu():
 
 # Adds new products to the model
 def add_product():
-    current_inventory = Product.select()
     clear()
+    current_inventory = Product.select()
 
     while True:
         print('*' * 25, 'New Product Menu', '*' * 25)
@@ -294,9 +294,7 @@ def add_product():
                 product_price=price_converter,
                 date_updated=date_stamp
             )
-
             item_added.save()
-            item_added.update()
 
         except IntegrityError:
             pass
@@ -331,14 +329,17 @@ def delete_product():
             while True:
                 try:
                     deleted_id = int(input(
-                        'To delete an item please type \
-                         the product ID number or 0 to cancel: '
+                        'To delete an item please type the product ID number or 0 to cancel: '
                         ))
-                    Product.delete().where(Product.id == deleted_id).execute()
-                    print('Product Deleted...')
-                    if deleted_id == 0:
 
+                    if deleted_id:
+                        Product.delete().where(Product.id == deleted_id).execute()
+                        print('Product Deleted...')
+
+                    elif deleted_id == 0:
                         break
+                    
+
                 except ValueError:
                     print('Please enter a product ID.')
 
@@ -380,8 +381,7 @@ def db_backup():
                     item.date_updated
                     ])
     while True:
-        user_backup = input('Would you like to view \
-                            the recently saved database Y/N?: ')
+        user_backup = input('Would you like to view the recently saved database Y/N?: ')
 
         if user_backup.lower() == 'y':
             with open('Inventory Backup.csv', 'r') as csv_file:
@@ -438,8 +438,10 @@ def update_inventory():
 
             while True:
                 try:
-                    where_update = int(input('Enter the product \
-                                             ID that has been updated: '))
+                    where_update = int(input('Enter the product ID that has been updated or "0" to cancel: '))
+
+                    if where_update == 0:
+                        break
 
                     update = Product.get(Product.id == where_update)
                     update.product_name = item_name
@@ -449,8 +451,7 @@ def update_inventory():
                     update.update()
                     update.save()
                 except DoesNotExist:
-                    print('ID number {} does not exist. Please enter a \
-                          valid ID number.'.format(where_update))
+                    print('ID number {} does not exist. Please enter a valid ID number.'.format(where_update))
                 except IntegrityError:
                     pass
                 except ValueError:
