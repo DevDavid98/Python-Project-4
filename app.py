@@ -19,9 +19,9 @@ def clear():
 class Product(Model):
 
     # product_id = AutoField()
-    product_quantity = IntegerField(unique=True)
+    product_quantity = IntegerField()
     product_price = IntegerField()
-    date_updated = DateField()
+    date_updated = DateTimeField()
     product_name = CharField(unique=True)
 
     class Meta:
@@ -41,7 +41,7 @@ def csv_extractor():
             foods = item[0]
             food_cost = int(re.sub('[^0-9]', '', item[1]))
             item_stock = int(item[2])
-            added_dates = item[3]
+            added_dates = datetime.datetime.strptime(item[3], '%m/%d/%Y').date()
 
             try:
                 inventory = Product.create(
@@ -276,16 +276,17 @@ def add_product():
             except ValueError:
                 print('Please enter a whole number only.')
         while True:
-            item_price = input(
-                'Enter product price: '
-                )
             try:
-                price_converter = int(re.sub('[^0-9]', '', item_price))
+                item_price = float(input(
+                    'Enter product price: '
+                    ))
+                price_converter = item_price * 100
                 break
-            except ValueError:
-                print('Please enter a valid price.')
 
-        date_stamp = ('{:%m/%d/%Y}'.format(datetime.datetime.now()))
+            except ValueError:
+                print('Please enter a valid price ex:(1.50, 150, .10)')
+
+        date_stamp = datetime.datetime.now()
 
         try:
             item_added = Product.create(
@@ -312,42 +313,46 @@ def delete_product():
     while True:
         all_inventory = Product.select()
         print('''
-            To delete by product ID press "I".
-            To exit Delete Product Menu press "Q".
+            To delete by product ID press "1".
+            To exit Delete Product Menu press "0".
         ''')
 
-        menu_select = input('Enter valid option: ')
-        print('\n')
+        try:
+            menu_select = int(input('Enter valid option: '))
+            print('\n')
+        
+            if menu_select == 1:
 
-        if menu_select.lower() == 'i':
+                print('ALL CURRENT INVENTORY:')
+    
+                for product in all_inventory:
+                    print('ID:', product.id, 'Product Name:', product.product_name)
+    
+                while True:
+                    try:
+                        deleted_id = int(input(
+                            'To delete an item please type the product ID number or 0 to cancel: '
+                            ))
+    
+                        if deleted_id:
+                            Product.delete().where(Product.id == deleted_id).execute()
+                            print('Product Deleted...')
+    
+                        elif deleted_id == 0:
+                            break
+                        
+    
+                    except ValueError:
+                        print('Please enter a product ID.')
 
-            print('ALL CURRENT INVENTORY:')
+            elif menu_select == 0:
+                break
+            else:
+                print('Please enter "1" or "0".')
+        except ValueError:
+            print('Please enter "1" or "0".')
 
-            for product in all_inventory:
-                print('ID:', product.id, 'Product Name:', product.product_name)
-
-            while True:
-                try:
-                    deleted_id = int(input(
-                        'To delete an item please type the product ID number or 0 to cancel: '
-                        ))
-
-                    if deleted_id:
-                        Product.delete().where(Product.id == deleted_id).execute()
-                        print('Product Deleted...')
-
-                    elif deleted_id == 0:
-                        break
-                    
-
-                except ValueError:
-                    print('Please enter a product ID.')
-
-        elif menu_select.lower() == 'q':
-            break
-
-        else:
-            print('Please enter a valid option!')
+            
 
 
 # Backups the database and shows the database to the user if needed
@@ -400,77 +405,64 @@ def db_backup():
 def update_inventory():
     all_inventory = Product.select()
     while True:
-        print('ALL CURRENT INVENTORY:')
-        for item in all_inventory:
-            print(
-                'Product ID:\n',
-                item.id,
-                '\nProduct Name:\n',
-                item.product_name,
-                '\nProduct Stock:\n',
-                item.product_quantity,
-                '\nProduct Price:\n',
-                item.product_price,
-                '\nLast Updated:\n',
-                item.date_updated,
-                '\n\n'
-            )
-        user_input = input('Would you like to update a product [Y/N]?: ')
-        if user_input.lower() ==  'y':
-            while True:
+        try:
+            user_input = int(input('To update product press "1" or "0" to cancel: '))
+            if user_input ==  1:
+                print('ALL CURRENT INVENTORY:')
+                for item in all_inventory:
+                    print(
+                        'Product ID:\n',
+                        item.id,
+                        '\nProduct Name:\n',
+                        item.product_name,
+                        '\nProduct Stock:\n',
+                        item.product_quantity,
+                        '\nProduct Price:\n',
+                        item.product_price,
+                        '\nLast Updated:\n',
+                        item.date_updated,
+                        '\n\n'
+                    )
                 while True:
                     try:
-                        update_id = int(input('Enter the ID number to update item or press "0" to cancel: '))
+                        update_id = int(input('Enter the ID number to update item or press "0" to leave: '))
+                        print('\n\n')
                         break
                     except ValueError:
                         print('Please enter a whole number')
                 if update_id == 0:
-                    break        
-                new_product_name = input('Update current product name: ')
-                    
+                    break
+
                 while True:
                     try:
-                        new_product_quantity = int(input('Update current stock quantity: '))
+                        new_product_quantity = int(input('Update the current stock of product number {}: '.format(update_id)))
+                        print('\n\n')
                         break
                     except ValueError:
                         print('Please enter a whole number')
                         
                 while True:
-                    new_product_price = input('Update current product price: ')
                     try:
-                        price_convert = int(re.sub('[^0-9]', '', new_product_price))
+                        new_product_price = float(input('Update current product price: '))
+                        price_convert = new_product_price * 100
+                        print('\n\n')
                         break
                     except ValueError:
-                        print('Please enter valid price')
-                        
-                try:    
-                    new_date_stamp = ('{:%m/%d/%Y}'.format(datetime.datetime.now()))
-                        
-                    name = Product.update(product_name = new_product_name).where(Product.id == update_id)
-                    quantity = Product.update(product_quantity = new_product_quantity).where(Product.id == update_id)
-                    price = Product.update(product_price = price_convert).where(Product.id == update_id)
-                    date = Product.update(date_updated = new_date_stamp).where(Product.id == update_id)
-                    
-                    name.execute()
-                    quantity.execute()
-                    price.execute()
-                    date.execute()
-                    break
-                except IntegrityError:
-                    break
-                    pass
-                
-                    
-        elif user_input.lower() == 'n':
-            break
-        else:
-            print('Please enter "Y" or "N".')
+                        print('Please enter a valid price ex:(1.50, 150, .10)')
+                           
+                new_date_stamp = datetime.datetime.now()
+                quantity = Product.update(product_quantity = new_product_quantity).where(Product.id == update_id)
+                price = Product.update(product_price = price_convert).where(Product.id == update_id)
+                date = Product.update(date_updated = new_date_stamp).where(Product.id == update_id)
     
-    
-    # update attributes one at a time into the database
-    # fix any and all errors that might occur
-    # check to see if it updates and saves and works if program is restarted
-    # make sure the old item is not being added back into DB
+                quantity.execute()
+                price.execute()
+                date.execute()
+            elif user_input == 0:
+                break
+        except ValueError:
+            print('Please enter a whole number!')
+
 
 # Makes sure file doesnt start when imported if i remember...
 if __name__ == '__main__':
